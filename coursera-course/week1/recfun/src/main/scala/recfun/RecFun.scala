@@ -73,20 +73,20 @@ object RecFun extends RecFunInterface {
     @scala.annotation.tailrec
     def howManyChanges(acc: Int, contexts: List[Context], coins: List[Int]): Int = {
 
-      var incrAcc = 0
-      if (contexts.isEmpty) return acc
-      var nextContexts = contexts.tail
-      val context = contexts.head
-      val total = sum(context.change)
-      if (total == money) incrAcc = 1
-      else if (total < money) {
-        nextContexts = Context(context.index, incr(context.change, context.index)) +: nextContexts
-        if (context.index + 1 < context.change.length) {
-          nextContexts = nextContexts :+ Context(context.index + 1, context.change)
-        }
-      }
+      if (contexts.isEmpty) acc
+      else {
+        val context = contexts.head
+        val total = sum(context.change)
+        val incrAcc = if (total == money) 1 else 0
 
-      howManyChanges(acc + incrAcc, nextContexts, coins)
+        val nextContexts = if (total < money) {
+          val incrContexts = Context(context.index, incr(context.change, context.index)) +: contexts.tail
+          if (context.index + 1 < context.change.length) incrContexts :+ Context(context.index + 1, context.change)
+          else incrContexts
+        } else contexts.tail
+
+        howManyChanges(acc + incrAcc, nextContexts, coins)
+      }
     }
 
     val initalChangeSeed = List.fill(coins.length)(0)
