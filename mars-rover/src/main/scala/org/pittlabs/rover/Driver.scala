@@ -8,6 +8,7 @@ object ConsoleDriver extends App {
 
   type Step = Function3[Char, Board, Try[Rover], Try[Rover]]
 
+  // -b0,0 -r0,0 -o0,0;1,1
   override def main(args: Array[String]): Unit = {
     val board = Board(100, 100)
     val rover = Rover(Point(10, 10), Direction.East)
@@ -16,10 +17,7 @@ object ConsoleDriver extends App {
     println(
       s"Start rover at point ${rover.point} with direction ${rover.direction}"
     )
-    val result = actions.toCharArray.toStream.foldLeft(Try(rover)) {
-      case (Success(rover), action)  => doAction(action, board, rover)
-      case (failure @ Failure(_), _) => failure
-    }
+    val result = RoverActionManager.performActions(actions.toSeq, rover, board)
 
     result match {
       case Failure(exception) => println(s"Error. $exception")
@@ -28,7 +26,20 @@ object ConsoleDriver extends App {
           s"Rover is in point ${rover.point} with direction ${rover.direction}"
         )
     }
+  }
+}
 
+object RoverActionManager {
+
+  def performActions(
+      actions: Seq[Char],
+      rover: Rover,
+      board: Board
+  ): Try[Rover] = {
+    actions.foldLeft(Try(rover)) {
+      case (Success(rover), action)  => doAction(action, board, rover)
+      case (failure @ Failure(_), _) => failure
+    }
   }
 
   private def mayBeDoAction(
@@ -54,29 +65,22 @@ object ConsoleDriver extends App {
       case _ => Failure(new RuntimeException(s"Unknown action '$action'"))
     }
   }
+}
 
-//   private def step(
-//       action: Char
-//   )(board: Board): Rover => Try[Rover] = {
+object ConfigByArgsBuilder {
 
-//     val forward = { rover: Rover => RoverOperations.moveForward(rover)(board) }
-//     val backward = { rover: Rover =>
-//       RoverOperations.moveBackward(rover)(board)
-//     }
-//     val left = { rover: Rover => Success(RoverOperations.turnLeft(rover)) }
-//     val right = { rover: Rover => Success(RoverOperations.turnRight(rover)) }
-//     val failure = { _: Rover =>
-//       Failure(
-//         new RuntimeException(s"Unknown action '$action'")
-//       )
-//     }
+  //-b0,0 -r0,0 -o0,0;1,1
+  def build(args: Array[String]): Either[String, (Board, Rover)] = {
 
-//     action match {
-//       case 'f' => forward
-//       case 'b' => backward
-//       case 'l' => left
-//       case 'r' => right
-//       case _   => failure
-//     }
-//   }
+    val boardDef = args.filter(_.startsWith(("-b")))
+    val obstaclesDef = args.filter(_.startsWith(("-o")))
+    val roverDef = args.filter(_.startsWith(("-r")))
+
+    if (boardDef.length == 0) return Left("Missing Board definition")
+    if (boardDef.length > 1) return Left("Multiple Board definitions")
+    if (roverDef.length == 0) return Left("Missing rover definition")
+
+    Left("")
+  }
+
 }

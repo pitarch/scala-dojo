@@ -47,10 +47,6 @@ object RoverOperations {
 
     if (board.existObstacleAt(nextPoint))
       return Failure(new BlockedByObstacleException(rover, nextPoint))
-    else
-      println(
-        s"no obstance on ${nextPoint} when rover moving from ${rover.point}"
-      )
 
     if (!board.isWithin(nextPoint)) nextPoint = board.wrap(nextPoint)
 
