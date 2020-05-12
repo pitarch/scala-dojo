@@ -44,13 +44,16 @@ object RecFun extends RecFunInterface {
 
     @tailrec
     def visit(opened: Int, chars: List[Char]): Boolean = {
-      if (chars.isEmpty) return opened == 0
-
-      var incr = 0
-      if (chars.head == ')' && opened == 0) return false
-      if (chars.head == ')') incr = -1
-      if (chars.head == '(') incr = 1
-      visit(opened + incr, chars.tail)
+      if (chars.isEmpty) opened == 0
+      else if (chars.head == ')' && opened == 0) false
+      else {
+        val incr = chars.head match {
+          case ')' => -1
+          case '(' => 1
+          case _ => 0
+        }
+        visit(opened + incr, chars.tail)
+      }
     }
 
     visit(0, chars)
