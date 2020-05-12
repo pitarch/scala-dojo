@@ -1,10 +1,8 @@
 package week1
 
-class Week1Test extends App {
-
+object Week1Test extends App {
 
   def abs(x:Double) = if (x < 0) -x else x
-
 
   def isGoodEnough(g: Double, x: Double) = {
     println(s"g: ${g}  -- x: ${x}")
