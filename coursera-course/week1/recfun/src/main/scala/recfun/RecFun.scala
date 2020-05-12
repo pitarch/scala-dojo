@@ -21,16 +21,15 @@ object RecFun extends RecFunInterface {
 
     @tailrec
     def visit(acc: Int, pending: List[(Int, Int)]): Int = {
-      if (pending.isEmpty) return acc
-      val (c, r) = pending.head
+      if (pending.isEmpty) acc
+      else {
+        val (c, r) = pending.head
+        val (incrAcc, incrPending) = if (c == 0 || c == r)  (1, Nil)
+        else if (c == 1 || c == r - 1)  (r, Nil)
+        else  (0, List((c, r - 1), (c - 1, r - 1)))
 
-      var incrPending = List[(Int, Int)]()
-      var incrAcc = 0
-      if (c == 0 || c == r) incrAcc = 1
-      else if (c == 1 || c == r - 1) incrAcc = r
-      else incrPending = List((c, r - 1), (c - 1, r - 1))
-
-      visit(acc + incrAcc, pending.tail ++ incrPending)
+        visit(acc + incrAcc, pending.tail ++ incrPending)
+      }
     }
 
     visit(0, List((c, r)))
